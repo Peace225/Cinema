@@ -10,6 +10,7 @@ import LegalExpertsPage from './pages/LegalExpertsPage';
 import AuthPage from './pages/AuthPage';
 import BoutiquePage from './pages/BoutiquePage';
 import DistributionPage from './pages/DistributionPage';
+import SoutenirPage from './pages/SoutenirPage';
 // Pages
 import Home from './pages/Home';
 import TalentDetail from './pages/TalentDetail';
@@ -35,6 +36,7 @@ function App() {
             <Route path="/inscription" element={<AuthPage />} />
             <Route path="/boutique" element={<BoutiquePage />} />
             <Route path="/distribution" element={<DistributionPage />} />
+            <Route path="/soutenir" element={<SoutenirPage />} />
             {/* Ajoute tes futures routes ici */}
           </Routes>
         </main>
