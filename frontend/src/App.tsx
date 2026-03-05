@@ -4,7 +4,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // Composants de structure (omniprésents)
 import Header from './components/Header';
 import Footer from './pages/Footer';
-
+import TalentDirectoryPage from './pages/TalentDirectoryPage';
+import B2BSpacePage from './pages/B2BSpacePage';
+import LegalExpertsPage from './pages/LegalExpertsPage';
+import AuthPage from './pages/AuthPage';
+import BoutiquePage from './pages/BoutiquePage';
+import DistributionPage from './pages/DistributionPage';
 // Pages
 import Home from './pages/Home';
 import TalentDetail from './pages/TalentDetail';
@@ -23,6 +28,13 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/talents/:id" element={<TalentDetail />} />
+            <Route path="/repertoire" element={<TalentDirectoryPage />} />
+            <Route path="/b2b" element={<B2BSpacePage />} />
+            <Route path="/experts" element={<LegalExpertsPage />} />
+            <Route path="/connexion" element={<AuthPage />} />
+            <Route path="/inscription" element={<AuthPage />} />
+            <Route path="/boutique" element={<BoutiquePage />} />
+            <Route path="/distribution" element={<DistributionPage />} />
             {/* Ajoute tes futures routes ici */}
           </Routes>
         </main>
