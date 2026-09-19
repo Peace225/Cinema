@@ -1,74 +1,47 @@
 // src/pages/BoutiquePage.tsx
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, ShoppingCart, Star, Filter, ArrowRight, Zap, Crown, PlayCircle, Download, CheckCircle2, X, Eye, Calendar, ShieldCheck, Flame } from 'lucide-react';
+import { ShoppingCart, ShieldCheck, Flame, CheckCircle2, X, Video, Aperture, Lightbulb, Mic2, Wrench, Palette, Monitor, Truck, Briefcase, LayoutGrid } from 'lucide-react';
+import BoutiqueSidebar from '../components/BoutiqueSidebar';
+import BoutiqueProductGrid from '../components/BoutiqueProductGrid';
 
-// --- DATA : PRODUITS ENRICHIS (LOCATION & VENTE) ---
-const products = [
-  // MATÉRIEL CINÉMA (Nouveau)
-  { 
-    id: 11, 
-    name: "RED V-Raptor 8K VV + Pack Objectifs", 
-    category: "Appareils & Caméras", 
-    price: "4 500 000 FCFA", 
-    rentPrice: "150 000 FCFA/jour",
-    rating: 5.0, 
-    image: "https://images.unsplash.com/photo-1576133030430-2cb01950e051?w=600&q=80", 
-    isNew: true, 
-    isLimited: true, 
-    type: "gear",
-    views: 42 // Social Proof: nombre de personnes qui regardent
-  },
-  { 
-    id: 12, 
-    name: "Stabilisateur DJI Ronin 2 Professional", 
-    category: "Appareils & Caméras", 
-    price: "1 200 000 FCFA", 
-    rentPrice: "45 000 FCFA/jour",
-    rating: 4.9, 
-    image: "https://images.unsplash.com/photo-1589131008205-044c79658f81?w=600&q=80", 
-    isNew: false, 
-    isLimited: false, 
-    type: "gear",
-    stock: 2 
-  },
-  { 
-    id: 13, 
-    name: "Kit Arri Skypanel S60-C (Éclairage)", 
-    category: "Appareils & Caméras", 
-    price: "2 800 000 FCFA", 
-    rentPrice: "60 000 FCFA/jour",
-    rating: 5.0, 
-    image: "https://images.unsplash.com/photo-1543165365-072ca203193c?w=600&q=80", 
-    isNew: true, 
-    isLimited: true, 
-    type: "gear",
-    views: 18
-  },
-
-  // MERCHANDISING
-  { id: 1, name: "Hoodie 'Director's Cut' Éburnywood", category: "Vêtements & Merch", price: "35 000 FCFA", rating: 4.9, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80", isNew: true, isLimited: false, type: "physique" },
-  { id: 3, name: "Veste Multi-Poches (Chef Op)", category: "Vêtements & Merch", price: "55 000 FCFA", rating: 5.0, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80", isNew: false, isLimited: true, stock: 4, type: "physique" },
-
-  // RESSOURCES DIGITALES
-  { id: 4, name: "Pack LUTs 'African Sun' (Color Grading)", category: "Ressources Digitales", price: "25 000 FCFA", rating: 5.0, image: "https://images.unsplash.com/photo-1534531173927-aeb928d54385?w=600&q=80", isNew: true, isLimited: false, type: "digital" },
+// --- DONNÉES GLOBALES ---
+const shopCategories = [
+  { id: 'tous', name: "Tout le catalogue", icon: LayoutGrid, subs: [] },
+  { id: 'cameras', name: "Caméras & Captation", icon: Video, subs: ["Cinéma Numérique", "Broadcast", "Drones", "Accessoires"] },
+  { id: 'optiques', name: "Objectifs & Optiques", icon: Aperture, subs: ["Prime", "Zoom", "Anamorphique", "Filtres"] },
+  { id: 'lumiere', name: "Éclairage Cinéma", icon: Lightbulb, subs: ["LED", "Fresnel", "HMI", "Accessoires"] },
+  { id: 'son', name: "Matériel de Son", icon: Mic2, subs: ["Micros Canon", "HF/Cravate", "Enregistreurs", "Perches"] },
+  { id: 'machinerie', name: "Machinerie", icon: Wrench, subs: ["Gimbals", "Steadicam", "Trépieds", "Grues & Rails"] },
+  { id: 'decor', name: "Décor & Costumes", icon: Palette, subs: ["Fonds Studio", "Machines SFX", "Maquillage Pro"] },
+  { id: 'postprod', name: "Post-Production", icon: Monitor, subs: ["Stations", "Écrans d'étalonnage", "Disques Durs"] },
+  { id: 'logistique', name: "Logistique & Régie", icon: Truck, subs: ["Générateurs", "Camions", "Streaming"] },
+  { id: 'services', name: "Services & Location", icon: Briefcase, subs: ["Location Studio", "Formation", "Assistance Tech"] },
 ];
 
-const categories = ["Tous", "Appareils & Caméras", "Vêtements & Merch", "Ressources Digitales", "Masterclasses"];
+const products = [
+  { id: 11, name: "RED V-Raptor 8K VV", categoryId: "cameras", desc: "Caméra cinéma 8K plein format, idéale pour les productions haut de gamme.", price: "14 500 000 FCFA", rentPrice: "150 000 FCFA/j", image: "https://images.unsplash.com/photo-1576133030430-2cb01950e051?w=600&q=80", isNew: true, views: 42, stock: 2 },
+  { id: 12, name: "Série Zeiss Master Prime", categoryId: "optiques", desc: "Set de 6 objectifs cinéma de référence (18mm à 135mm) avec ouverture T1.3.", price: "Sur Devis", rentPrice: "250 000 FCFA/j", image: "https://images.unsplash.com/photo-1516961642265-531546e84af2?w=600&q=80", isLimited: true },
+  { id: 13, name: "Arri SkyPanel S60-C LED", categoryId: "lumiere", desc: "Panneau LED RGBW ultra-lumineux. La norme industrielle pour les plateaux.", price: "3 800 000 FCFA", rentPrice: "60 000 FCFA/j", image: "https://images.unsplash.com/photo-1543165365-072ca203193c?w=600&q=80", isNew: false, views: 18 },
+  { id: 14, name: "Sennheiser MKH 416", categoryId: "son", desc: "Microphone canon directionnel standard pour la prise de son sur perche.", price: "650 000 FCFA", rentPrice: "15 000 FCFA/j", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80", isNew: false },
+  { id: 15, name: "DJI Ronin 2 Professional", categoryId: "machinerie", desc: "Stabilisateur motorisé 3 axes professionnel, charge jusqu'à 13,6 kg.", price: "4 200 000 FCFA", rentPrice: "80 000 FCFA/j", image: "https://images.unsplash.com/photo-1589131008205-044c79658f81?w=600&q=80", stock: 1, views: 89 },
+  { id: 16, name: "Mac Studio M2 Ultra", categoryId: "postprod", desc: "Station de montage surpuissante pour le montage multicam 4K/8K.", price: "3 200 000 FCFA", rentPrice: null, image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80", isNew: true },
+  { id: 17, name: "Générateur Honda EU7000is", categoryId: "logistique", desc: "Groupe électrogène silencieux 7000W pour courant propre et stable.", price: "2 800 000 FCFA", rentPrice: "45 000 FCFA/j", image: "https://images.unsplash.com/photo-1585644111726-2678687a41ea?w=600&q=80" },
+  { id: 18, name: "Location Studio Fond Vert", categoryId: "services", desc: "Plateau insonorisé de 200m² avec cyclorama vert 3 faces et loges.", price: null, rentPrice: "200 000 FCFA/j", image: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=600&q=80", isLimited: true },
+];
 
 const BoutiquePage = () => {
-  const [activeTab, setActiveTab] = useState('Tous');
+  const [activeCategory, setActiveCategory] = useState('tous');
   const [cartItems, setCartItems] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   
-  // --- SOCIAL PROOF NOTIFICATION ---
   const [showSalesNotif, setShowSalesNotif] = useState(false);
   const [currentSalesNotif, setCurrentSalesNotif] = useState(0);
 
   const salesNotifications = [
-    { name: "Kora Productions", item: "RED V-Raptor", action: "louée pour 5 jours", time: "Il y a 4 min" },
-    { name: "M. Diop", item: "Hoodie Director", action: "acheté", time: "Il y a 12 min" },
-    { name: "Studio 225", item: "DJI Ronin 2", action: "réservé en location", time: "Il y a 1 heure" },
+    { name: "Studio 225", item: "RED V-Raptor", action: "réservée", time: "Il y a 4 min" },
+    { name: "Kora Films", item: "Zeiss Master Prime", action: "loués", time: "Il y a 12 min" },
+    { name: "M. Diabaté", item: "Mac Studio M2", action: "acheté", time: "Il y a 1 heure" },
   ];
 
   useEffect(() => {
@@ -83,34 +56,26 @@ const BoutiquePage = () => {
     return () => { clearTimeout(timer); clearInterval(interval); };
   }, []);
 
-  const handleAddToCart = (name: string) => {
+  const handleAction = (name: string, actionType: 'achat' | 'location') => {
     setCartItems(prev => prev + 1);
-    setToastMessage(`"${name}" ajouté au panier !`);
+    setToastMessage(`"${name}" ajouté pour ${actionType} !`);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const filteredProducts = products.filter(p => activeTab === "Tous" || p.category === activeTab);
+  const filteredProducts = products.filter(p => activeCategory === 'tous' || p.categoryId === activeCategory);
+  const currentCategoryData = shopCategories.find(c => c.id === activeCategory);
 
   return (
-    <div className="min-h-screen bg-[#050110] font-sans text-white selection:bg-orange-500 selection:text-white pb-24 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050110] font-sans text-white pb-24 relative overflow-x-hidden">
       
-      {/* --- POPUP SOCIAL PROOF (LIVE SALES) --- */}
+      {/* WIDGETS GLOBAUX (Popup & Panier) */}
       <AnimatePresence>
         {showSalesNotif && (
-          <motion.div 
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -100, opacity: 0 }}
-            className="fixed bottom-24 left-6 z-[100] bg-white/5 backdrop-blur-xl border border-white/10 p-4 rounded-2xl flex items-center gap-4 shadow-2xl"
-          >
-            <div className="w-10 h-10 bg-orange-600/20 rounded-full flex items-center justify-center">
-              <Flame size={20} className="text-orange-500" />
-            </div>
+          <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -100, opacity: 0 }} className="fixed bottom-24 left-6 z-[100] bg-[#0a0515]/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl flex items-center gap-4 shadow-2xl">
+            <div className="w-10 h-10 bg-orange-600/20 rounded-full flex items-center justify-center border border-orange-500/20"><Flame size={20} className="text-orange-500" /></div>
             <div>
               <p className="text-xs font-bold text-white">{salesNotifications[currentSalesNotif].name}</p>
-              <p className="text-[11px] text-slate-400">
-                {salesNotifications[currentSalesNotif].item} <span className="text-orange-400 font-bold">{salesNotifications[currentSalesNotif].action}</span>
-              </p>
+              <p className="text-[11px] text-slate-400">{salesNotifications[currentSalesNotif].item} <span className="text-orange-400 font-bold">{salesNotifications[currentSalesNotif].action}</span></p>
               <p className="text-[9px] text-slate-500 mt-1 uppercase tracking-widest">{salesNotifications[currentSalesNotif].time}</p>
             </div>
             <button onClick={() => setShowSalesNotif(false)}><X size={14} className="text-slate-500 ml-2" /></button>
@@ -118,113 +83,63 @@ const BoutiquePage = () => {
         )}
       </AnimatePresence>
 
-      {/* --- WIDGET PANIER --- */}
       <div className="fixed bottom-6 right-6 z-[100]">
-        <button className="bg-orange-600 text-white p-4 rounded-full shadow-2xl relative">
+        <button className="bg-orange-600 text-white p-4 rounded-full shadow-[0_10px_30px_rgba(234,88,12,0.4)] hover:scale-110 transition-transform relative group">
           <ShoppingCart size={24} />
-          {cartItems > 0 && <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-black w-6 h-6 rounded-full flex items-center justify-center">{cartItems}</span>}
+          {cartItems > 0 && <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-[#050110]">{cartItems}</span>}
         </button>
       </div>
 
-      {/* --- TOAST --- */}
       <AnimatePresence>
         {toastMessage && (
-          <motion.div initial={{ y: 50, x: "-50%" }} animate={{ y: 0, x: "-50%" }} exit={{ y: 20 }} className="fixed bottom-10 left-1/2 z-[110] bg-green-600 px-6 py-3 rounded-full flex items-center gap-2 shadow-2xl">
-            <CheckCircle2 size={18} /> <span className="text-sm font-bold">{toastMessage}</span>
+          <motion.div initial={{ y: 50, x: "-50%" }} animate={{ y: 0, x: "-50%" }} exit={{ y: 20, opacity: 0 }} className="fixed bottom-10 left-1/2 z-[110] bg-[#0a0515]/95 backdrop-blur-xl border border-green-500/30 px-6 py-4 rounded-2xl flex items-center gap-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <CheckCircle2 size={20} className="text-green-500" /> <span className="text-sm font-bold text-white">{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* --- HERO --- */}
-      <div className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-orange-400 text-xs font-black uppercase tracking-widest mb-8">
-            <ShieldCheck size={14} /> Matériel Certifié Éburnywood
-          </motion.div>
-          <h1 className="text-5xl md:text-7xl font-black mb-6 italic">Le Studio <span className="text-orange-500 not-italic">Store</span></h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
-            Équipez votre production avec les meilleurs outils. Vente de matériel neuf et location de packs caméras/lumières à tarifs préférentiels.
-          </p>
-        </div>
-      </div>
-
-      {/* --- NAVIGATION / FILTRES --- */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="flex gap-2 overflow-x-auto hide-scroll pb-4 border-b border-white/5">
-          {categories.map((cat) => (
-            <button key={cat} onClick={() => setActiveTab(cat)} className={`whitespace-nowrap px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === cat ? 'bg-orange-600 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* --- GRILLE DE PRODUITS --- */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <motion.div layout key={product.id} className="group relative bg-[#0a0515] rounded-[2rem] p-4 border border-white/5 hover:border-orange-500/50 transition-all flex flex-col">
-              
-              {/* Image & Overlay FOMO */}
-              <div className="relative h-64 rounded-[1.5rem] overflow-hidden mb-5">
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                
-                {/* Badge Live Views (Social Proof) */}
-                {product.views && (
-                  <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
-                    <Eye size={12} className="text-orange-500" />
-                    <span className="text-[10px] font-bold text-white">{product.views} pros regardent</span>
-                  </div>
-                )}
-
-                {/* Badges types */}
-                <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  {product.isLimited && <span className="bg-red-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded">Stock Limité</span>}
-                  {product.rentPrice && <span className="bg-blue-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded">Location Dispo</span>}
-                </div>
-              </div>
-
-              {/* Contenu */}
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-white mb-2 leading-tight">{product.name}</h3>
-                
-                {/* Block Prix Spécifique Cinéma */}
-                <div className="space-y-1 mb-4">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-bold uppercase">Vente</span>
-                    <span className="text-white font-black">{product.price}</span>
-                  </div>
-                  {product.rentPrice && (
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-orange-500 font-bold uppercase flex items-center gap-1"><Calendar size={12}/> Location</span>
-                      <span className="text-orange-500 font-black">{product.rentPrice}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* FOMO Stock */}
-                {product.stock && product.stock <= 3 && (
-                  <p className="text-red-500 text-[10px] font-bold mb-4 uppercase tracking-tighter animate-pulse flex items-center gap-1">
-                    <Zap size={10} fill="currentColor"/> Plus que {product.stock} exemplaires en vente !
-                  </p>
-                )}
-
-                <div className="mt-auto flex gap-2">
-                  <button onClick={() => handleAddToCart(product.name)} className="flex-1 bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-orange-600 hover:text-white transition-all">
-                    Acheter
-                  </button>
-                  {product.rentPrice && (
-                    <button className="bg-white/5 border border-white/10 text-white px-4 rounded-xl hover:bg-white/10 transition-all">
-                      <Calendar size={18} />
-                    </button>
-                  )}
-                </div>
-              </div>
+      {/* HERO SECTION FIXE */}
+      <div className="sticky top-20 z-40 w-full shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-b border-white/10">
+        <div className="relative py-12 px-4 sm:px-6 lg:px-8 bg-[#0a0515] overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=1920&q=80" alt="Arsenal background" className="absolute inset-0 w-full h-full object-cover opacity-15 mix-blend-luminosity" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0515] via-transparent to-[#0a0515]"></div>
+          <div className="absolute top-0 right-0 w-[600px] h-[500px] bg-orange-600/15 blur-[150px] rounded-full pointer-events-none"></div>
+          
+          <div className="max-w-[1440px] mx-auto relative z-10 text-center flex flex-col items-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-orange-400 text-[10px] font-black uppercase tracking-widest mb-4">
+              <ShieldCheck size={14} /> Hub Matériel Certifié
             </motion.div>
-          ))}
+            <h1 className="text-4xl md:text-6xl font-black mb-4 italic text-white drop-shadow-md">L'Arsenal du <span className="text-orange-500 not-italic">Créateur</span></h1>
+            <p className="text-sm md:text-base text-slate-300 max-w-2xl mx-auto font-light drop-shadow-sm">
+              De l'achat de caméras RED à la location de machinerie lourde et de studios. Équipez votre production professionnelle.
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* CONTENU PRINCIPAL (Composants extraits) */}
+      <div className="relative z-10 bg-[#050110] pt-12 pb-24 min-h-screen">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* L'AJOUT CRUCIAL : items-start */}
+          <div className="flex flex-col lg:flex-row gap-10 items-start">
+            
+            <BoutiqueSidebar 
+              categories={shopCategories} 
+              activeCategory={activeCategory} 
+              setActiveCategory={setActiveCategory} 
+            />
+
+            <BoutiqueProductGrid 
+              products={filteredProducts} 
+              currentCategoryData={currentCategoryData} 
+              handleAction={handleAction} 
+            />
+
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

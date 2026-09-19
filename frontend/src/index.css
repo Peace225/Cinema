@@ -13,8 +13,8 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-content: flex-start;
+  /* 🧹 display: flex supprimé */
+  /* 🧹 place-content supprimé */
   min-width: 320px;
   min-height: 100vh;
   background-color: #f8fafc; /* gray-50 */
